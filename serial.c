@@ -35,7 +35,7 @@
 	int main()
 	{
 		HANDLE hComm;
-		hComm = CreateFile("\\\\.\\COM24",            //port name 
+		hComm = CreateFile("\\\\.\\COM4",            //port name 
 							GENERIC_READ | GENERIC_WRITE, //Read/Write   				 
 							0,            // No Sharing                               
 							NULL,         // No Security                              

@@ -56,7 +56,7 @@
 	void main(void)
 		{
 			HANDLE hComm;                          // Handle to the Serial port
-			char  ComPortName[] = "\\\\.\\COM24";  // Name of the Serial port(May Change) to be opened,
+			char  ComPortName[] = "\\\\.\\COM4";  // Name of the Serial port(May Change) to be opened,
 			BOOL  Status;                          // Status of the various operations 
 			DWORD dwEventMask;                     // Event mask to trigger
 			char  TempChar;                        // Temperory Character
@@ -68,7 +68,13 @@
 			printf("\n |    Serial Port  Reception (Win32 API)    |");
 			printf("\n +==========================================+\n");
 			/*---------------------------------- Opening the Serial Port -------------------------------------------*/
-			
+			int port, baudrate;
+			printf("\n Please enter Com port number: ");
+			scanf("%d", &port);
+			sprintf(ComPortName,"\\\\.\\COM%d", port);
+			printf("\n Please enter BaudRate: ");
+			scanf("%d", &baudrate);
+
 			hComm = CreateFile( ComPortName,                  // Name of the Port to be Opened
 		                        GENERIC_READ | GENERIC_WRITE, // Read/Write Access
 								0,                            // No Sharing, ports cant be shared
@@ -92,7 +98,7 @@
 			if (Status == FALSE)
 				printf("\n    Error! in GetCommState()");
 
-			dcbSerialParams.BaudRate = CBR_9600;      // Setting BaudRate = 9600
+			dcbSerialParams.BaudRate = baudrate;//CBR_9600;      // Setting BaudRate = 9600
 			dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
 			dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
 			dcbSerialParams.Parity = NOPARITY;        // Setting Parity = None 
@@ -172,5 +178,5 @@
 		
 				CloseHandle(hComm);//Closing the Serial Port
 				printf("\n +==========================================+\n");
-				_getch();
+				getchar();
 		}//End of Main()

@@ -53,7 +53,7 @@
 	{
 		
 		HANDLE hComm;                          // Handle to the Serial port
-		char   ComPortName[] = "\\\\.\\COM24"; // Name of the Serial port(May Change) to be opened,
+		char   ComPortName[] = "\\\\.\\COM4"; // Name of the Serial port(May Change) to be opened,
 		BOOL   Status;
 		
 		printf("\n\n +==========================================+");
@@ -85,7 +85,7 @@
 		if (Status == FALSE)
 			printf("\n   Error! in GetCommState()");
 
-		dcbSerialParams.BaudRate = CBR_9600;      // Setting BaudRate = 9600
+		dcbSerialParams.BaudRate = CBR_115200;      // Setting BaudRate = 9600
 		dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
 		dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
 		dcbSerialParams.Parity   = NOPARITY;      // Setting Parity = None 
@@ -141,5 +141,5 @@
 
 		CloseHandle(hComm);//Closing the Serial Port
 		printf("\n ==========================================\n");
-		_getch();
+		getchar();
 	}
