@@ -60,7 +60,7 @@
 			BOOL  Status;                          // Status of the various operations 
 			DWORD dwEventMask;                     // Event mask to trigger
 			char  TempChar;                        // Temperory Character
-			char  SerialBuffer[256];               // Buffer Containing Rxed Data
+			char  SerialBuffer[4096];               // Buffer Containing Rxed Data
 			DWORD NoBytesRead;                     // Bytes read by ReadFile()
 			int i = 0;
 
@@ -71,6 +71,10 @@
 			int port, baudrate;
 			printf("\n Please enter Com port number: ");
 			scanf("%d", &port);
+			if(port > 256) {
+				printf("\n No such port!");
+				return;
+			}
 			sprintf(ComPortName,"\\\\.\\COM%d", port);
 			printf("\n Please enter BaudRate: ");
 			scanf("%d", &baudrate);
@@ -121,11 +125,11 @@
 			/*------------------------------------ Setting Timeouts --------------------------------------------------*/
 			
 			COMMTIMEOUTS timeouts = { 0 };
-			timeouts.ReadIntervalTimeout         = 50;
-			timeouts.ReadTotalTimeoutConstant    = 50;
-			timeouts.ReadTotalTimeoutMultiplier  = 10;
-			timeouts.WriteTotalTimeoutConstant   = 50;
-			timeouts.WriteTotalTimeoutMultiplier = 10;
+			timeouts.ReadIntervalTimeout         = 500;
+			timeouts.ReadTotalTimeoutConstant    = 500;
+			timeouts.ReadTotalTimeoutMultiplier  = 100;
+			timeouts.WriteTotalTimeoutConstant   = 500;
+			timeouts.WriteTotalTimeoutMultiplier = 100;
 			
 			if (SetCommTimeouts(hComm, &timeouts) == FALSE)
 				printf("\n\n    Error! in Setting Time Outs");
@@ -135,7 +139,7 @@
 			/*------------------------------------ Setting Receive Mask ----------------------------------------------*/
 			
 			Status = SetCommMask(hComm, EV_RXCHAR); //Configure Windows to Monitor the serial device for Character Reception
-	
+
 			if (Status == FALSE)
 				printf("\n\n    Error! in Setting CommMask");
 			else
@@ -145,6 +149,8 @@
            /*------------------------------------ Setting WaitComm() Event   ----------------------------------------*/
 			
 			printf("\n\n    Waiting for Data Reception");
+		while (1)  {
+			 Sleep( 100);
 
 			Status = WaitCommEvent(hComm, &dwEventMask, NULL); //Wait for the character to be received
 	
@@ -156,7 +162,7 @@
 				}
 			else //If  WaitCommEvent()==True Read the RXed data using ReadFile();
 				{
-					printf("\n\n    Characters Received");
+					// printf("\n\n    Characters Received");
 					do
 						{
 							Status = ReadFile(hComm, &TempChar, sizeof(TempChar), &NoBytesRead, NULL);
@@ -174,8 +180,9 @@
 					for (j = 0; j < i-1; j++)		// j < i-1 to remove the dupliated last character
 						printf("%c", SerialBuffer[j]);
 		
-				}	
-		
+				}
+			 memset(SerialBuffer, 1, strlen(SerialBuffer));
+		}
 				CloseHandle(hComm);//Closing the Serial Port
 				printf("\n +==========================================+\n");
 				getchar();
