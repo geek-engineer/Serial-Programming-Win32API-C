@@ -152,12 +152,20 @@
 			printf("\n\n   Setting Serial Port Timeouts Successfull");
 
 		/*----------------------------- Reading  Data from log file----------------------------------------*/
-		char Databuf[16];
+		int datarate = 128;
+		int DataSent = 0;
+		char Databuf[datarate];
 		DWORD dwRead;
-
+		DWORD dwFileSize;
+		dwFileSize = GetFileSize(hFile, NULL);
+		printf("\r\n file size: %d byte",dwFileSize);
 	while(1) {
-		sleep(1000);
-		ReadFile(hFile, Databuf, 16, &dwRead, NULL);
+		sleep(100);
+
+		DataSent += datarate;
+
+
+		ReadFile(hFile, Databuf, datarate, &dwRead, NULL);
 
 		/*----------------------------- Writing a Character to Serial Port----------------------------------------*/
 		// char   lpBuffer[] = "A";		       // lpBuffer should be  char or byte array, otherwise write wil fail
@@ -165,20 +173,20 @@
 		DWORD  dNoOfBytesWritten = 0;          // No of bytes written to the port
 		
 		dNoOFBytestoWrite = sizeof(Databuf); // Calculating the no of bytes to write into the port
-
 		Status = WriteFile(hComm,               // Handle to the Serialport
 						   Databuf,            // Data to be written to the port 
 						   dNoOFBytestoWrite,   // No of bytes to write into the port
 						   &dNoOfBytesWritten,  // No of bytes written to the port
 						   NULL);
-	}
-		// if (Status == TRUE)
-		// 	printf("\n\n    %s - Written to %s", lpBuffer, ComPortName);
-		// else
-		// 	printf("\n\n   Error %d in Writing to Serial Port",GetLastError());
 
+		printf("\r\n %d byte data has been sent",DataSent);
+		if (DataSent >= dwFileSize) //end of file
+			break;
+	}
+
+		printf("\r\n The file has been sent!!");
 		CloseHandle(hComm);//Closing the Serial Port
 		CloseHandle(hFile);//Closing the Serial Port
-		printf("\n ==========================================\n");
-		while(1);
+		getchar();
+		getchar();
 }
