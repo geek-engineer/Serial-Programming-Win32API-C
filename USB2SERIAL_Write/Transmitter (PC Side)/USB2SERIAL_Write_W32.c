@@ -94,11 +94,15 @@
 
 		/*----------------------------------- Opening log file --------------------------------------------------*/
 		HANDLE hFile;
-		char filename[] = "teraterm.log";
+		char filename[] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxx";
+		printf("\n Please enter log filename to be read:");
+		scanf("%s", &filename);
 		hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 		if(hFile != INVALID_HANDLE_VALUE) {
 			printf ("\r\n   Read file: %s success!", filename);
 		} else {
+			printf("open log file fail!!");
+			getchar();
 			return;
 		}
 
@@ -112,7 +116,7 @@
 		if (Status == FALSE)
 			printf("\n   Error! in GetCommState()");
 
-		dcbSerialParams.BaudRate = CBR_9600;      // Setting BaudRate = 9600
+		dcbSerialParams.BaudRate = baudrate;      // Setting BaudRate = 9600
 		dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
 		dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
 		dcbSerialParams.Parity   = NOPARITY;      // Setting Parity = None 
@@ -148,12 +152,12 @@
 			printf("\n\n   Setting Serial Port Timeouts Successfull");
 
 		/*----------------------------- Reading  Data from log file----------------------------------------*/
-		char Databuf[256];
+		char Databuf[16];
 		DWORD dwRead;
 
 	while(1) {
 		sleep(1000);
-		ReadFile(hFile, Databuf, 256, &dwRead, NULL);
+		ReadFile(hFile, Databuf, 16, &dwRead, NULL);
 
 		/*----------------------------- Writing a Character to Serial Port----------------------------------------*/
 		// char   lpBuffer[] = "A";		       // lpBuffer should be  char or byte array, otherwise write wil fail
@@ -167,7 +171,7 @@
 						   dNoOFBytestoWrite,   // No of bytes to write into the port
 						   &dNoOfBytesWritten,  // No of bytes written to the port
 						   NULL);
-		}
+	}
 		// if (Status == TRUE)
 		// 	printf("\n\n    %s - Written to %s", lpBuffer, ComPortName);
 		// else
