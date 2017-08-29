@@ -49,6 +49,14 @@
 	#include <Windows.h>
 	#include <stdio.h>
 	#include <string.h>
+	#include <time.h>
+ 
+	void sleep(unsigned int mseconds)
+	{
+	    clock_t goal = mseconds + clock();
+	    while (goal > clock());
+	}
+
 	void main(void)
 	{
 		
@@ -60,6 +68,16 @@
 		printf("\n |  Serial Transmission (Win32 API)         |");
 		printf("\n +==========================================+\n");
 		/*----------------------------------- Opening the Serial Port --------------------------------------------*/
+			int port, baudrate;
+			printf("\n Please enter Com port number: ");
+			scanf("%d", &port);
+			if(port > 256) {
+				printf("\n No such port!");
+				return;
+			}
+			sprintf(ComPortName,"\\\\.\\COM%d", port);
+			printf("\n Please enter BaudRate: ");
+			scanf("%d", &baudrate);
 
 		hComm = CreateFile( ComPortName,                       // Name of the Port to be Opened
 							GENERIC_READ | GENERIC_WRITE,      // Read/Write Access
@@ -74,7 +92,16 @@
 		else 
 			printf("\n   Port %s Opened\n ", ComPortName);
 
-		
+		/*----------------------------------- Opening log file --------------------------------------------------*/
+		HANDLE hFile;
+		char filename[] = "teraterm.log";
+		hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+		if(hFile != INVALID_HANDLE_VALUE) {
+			printf ("\r\n   Read file: %s success!", filename);
+		} else {
+			return;
+		}
+
 		/*------------------------------- Setting the Parameters for the SerialPort ------------------------------*/
 
 		DCB dcbSerialParams = { 0 };                        // Initializing DCB structure
@@ -85,7 +112,7 @@
 		if (Status == FALSE)
 			printf("\n   Error! in GetCommState()");
 
-		dcbSerialParams.BaudRate = CBR_115200;      // Setting BaudRate = 9600
+		dcbSerialParams.BaudRate = CBR_9600;      // Setting BaudRate = 9600
 		dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
 		dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
 		dcbSerialParams.Parity   = NOPARITY;      // Setting Parity = None 
@@ -120,26 +147,34 @@
 		else
 			printf("\n\n   Setting Serial Port Timeouts Successfull");
 
-		
+		/*----------------------------- Reading  Data from log file----------------------------------------*/
+		char Databuf[256];
+		DWORD dwRead;
+
+	while(1) {
+		sleep(1000);
+		ReadFile(hFile, Databuf, 256, &dwRead, NULL);
+
 		/*----------------------------- Writing a Character to Serial Port----------------------------------------*/
-		char   lpBuffer[] = "A";		       // lpBuffer should be  char or byte array, otherwise write wil fail
-		DWORD  dNoOFBytestoWrite;              // No of bytes to write into the port
+		// char   lpBuffer[] = "A";		       // lpBuffer should be  char or byte array, otherwise write wil fail
+		DWORD  dNoOFBytestoWrite ;              // No of bytes to write into the port
 		DWORD  dNoOfBytesWritten = 0;          // No of bytes written to the port
 		
-		dNoOFBytestoWrite = sizeof(lpBuffer); // Calculating the no of bytes to write into the port
+		dNoOFBytestoWrite = sizeof(Databuf); // Calculating the no of bytes to write into the port
 
 		Status = WriteFile(hComm,               // Handle to the Serialport
-						   lpBuffer,            // Data to be written to the port 
+						   Databuf,            // Data to be written to the port 
 						   dNoOFBytestoWrite,   // No of bytes to write into the port
 						   &dNoOfBytesWritten,  // No of bytes written to the port
 						   NULL);
-		
-		if (Status == TRUE)
-			printf("\n\n    %s - Written to %s", lpBuffer, ComPortName);
-		else
-			printf("\n\n   Error %d in Writing to Serial Port",GetLastError());
+		}
+		// if (Status == TRUE)
+		// 	printf("\n\n    %s - Written to %s", lpBuffer, ComPortName);
+		// else
+		// 	printf("\n\n   Error %d in Writing to Serial Port",GetLastError());
 
 		CloseHandle(hComm);//Closing the Serial Port
+		CloseHandle(hFile);//Closing the Serial Port
 		printf("\n ==========================================\n");
-		getchar();
-	}
+		while(1);
+}

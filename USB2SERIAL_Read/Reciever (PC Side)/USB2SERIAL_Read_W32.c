@@ -125,11 +125,11 @@
 			/*------------------------------------ Setting Timeouts --------------------------------------------------*/
 			
 			COMMTIMEOUTS timeouts = { 0 };
-			timeouts.ReadIntervalTimeout         = 500;
-			timeouts.ReadTotalTimeoutConstant    = 500;
-			timeouts.ReadTotalTimeoutMultiplier  = 100;
-			timeouts.WriteTotalTimeoutConstant   = 500;
-			timeouts.WriteTotalTimeoutMultiplier = 100;
+			timeouts.ReadIntervalTimeout         = 50;
+			timeouts.ReadTotalTimeoutConstant    = 50;
+			timeouts.ReadTotalTimeoutMultiplier  = 10;
+			timeouts.WriteTotalTimeoutConstant   = 50;
+			timeouts.WriteTotalTimeoutMultiplier = 10;
 			
 			if (SetCommTimeouts(hComm, &timeouts) == FALSE)
 				printf("\n\n    Error! in Setting Time Outs");
@@ -150,7 +150,6 @@
 			
 			printf("\n\n    Waiting for Data Reception");
 		while (1)  {
-			 Sleep( 100);
 
 			Status = WaitCommEvent(hComm, &dwEventMask, NULL); //Wait for the character to be received
 	
@@ -177,8 +176,11 @@
 
 					printf("\n\n    ");
 					int j =0;
-					for (j = 0; j < i-1; j++)		// j < i-1 to remove the dupliated last character
-						printf("%c", SerialBuffer[j]);
+					for (j = 0; j < i-1; j++) {		// j < i-1 to remove the dupliated last character
+						// printf("%c", SerialBuffer[j]);
+						if (SerialBuffer[j+1] == '$')
+							 printf("start command!!");
+					}
 		
 				}
 			 memset(SerialBuffer, 1, strlen(SerialBuffer));
